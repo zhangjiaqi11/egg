@@ -5,6 +5,6 @@
  */
 module.exports = app => {
   const { router, controller } = app;
-  router.get('/', controller.testController.index);
-  router.post('/testSql', controller.testController.testSql);
+  router.get('/api/test', controller.testController.index);
+  router.post('/api/testSql', controller.testController.testSql);
 };
