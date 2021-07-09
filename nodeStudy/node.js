@@ -19,18 +19,14 @@ class replaceConsole{
     //确定替换后的内容
     sureChangeContent(){
         let dataEdit=fs.readFileSync(this.fileName,'utf-8')
-        console.log(this.reg);
         return dataEdit.replace(this.reg,'')
     }
-    async replaceFile(){
-        let that=this
-        let dataEdit=await that.sureChangeContent()
-        if(dataEdit!==false){
-            let fd=fs.openSync(that.fileName,'w')
-            fs.writeFileSync(fd,dataEdit,(err)=>{
-                if(err)throw err
-            })
-        }
+    replaceFile(){
+        let dataEdit=this.sureChangeContent()
+        let fd=fs.openSync(this.fileName,'w')
+        fs.writeFileSync(fd,dataEdit,(err)=>{
+            if(err)throw err
+        })
     }
     //初始化
     init(dirname,reg){
