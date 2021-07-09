@@ -2,6 +2,7 @@ const path=require('path')
 const fs=require('fs');
 class replaceConsole{
     fileName=''
+    rep=''
     constructor(){
 
     }
@@ -10,12 +11,7 @@ class replaceConsole{
         let that=this
         return new Promise((rej,res)=>{
             fs.stat(that.fileName,function(err,stat){
-                if(stat.isFile()){
-                    rej(true) 
-                }else{
-                    rej(false)
-                }
-                
+                rej(stat.isFile())                 
             })
         })
         
@@ -23,8 +19,8 @@ class replaceConsole{
     //确定替换后的内容
     sureChangeContent(){
         let dataEdit=fs.readFileSync(this.fileName,'utf-8')
-        let rep=/console.log(.*)/g
-        return dataEdit.replace(rep,'')
+        console.log(this.reg);
+        return dataEdit.replace(this.reg,'')
     }
     async replaceFile(){
         let that=this
@@ -37,8 +33,9 @@ class replaceConsole{
         }
     }
     //初始化
-    init(dirname){
+    init(dirname,reg){
         let that=this
+        this.reg=reg
         fs.readdir(dirname,function(err,file){
             file.forEach(v=>{
                 that.fileName=path.join(dirname,v)
@@ -47,12 +44,12 @@ class replaceConsole{
                     if(flag){
                         that.replaceFile()
                     }else{
-                        that.init(`${dirname}/${v}`)
+                        that.init(`${dirname}/${v}`,that.reg)
                     }
                 })
             })
         })
     }
 }
-new replaceConsole().init('./view')
-new replaceConsole().init('./components')
+new replaceConsole().init('./view',/console.log(.*)/g)
+new replaceConsole().init('./components',/console.log(.*)/g)
