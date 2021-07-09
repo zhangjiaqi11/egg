@@ -2,17 +2,16 @@ const path=require('path')
 const fs=require('fs');
 class replaceConsole{
     fileName=''
-    constructor(fileName){
-        // this.fileName=fileName
+    constructor(){
+
     }
-    fn(){ 
+    //判断是否为文件
+    checkFileType(){ 
         let that=this
         return new Promise((rej,res)=>{
             fs.stat(that.fileName,function(err,stat){
                 if(stat.isFile()){
-                    let dataEdit=fs.readFileSync(that.fileName,'utf-8')
-                    let rep=/console.log(.*)/g
-                    rej(dataEdit.replace(rep,'')) 
+                    rej(true) 
                 }else{
                     rej(false)
                 }
@@ -21,9 +20,15 @@ class replaceConsole{
         })
         
     }
+    //确定替换后的内容
+    sureChangeContent(){
+        let dataEdit=fs.readFileSync(this.fileName,'utf-8')
+        let rep=/console.log(.*)/g
+        return dataEdit.replace(rep,'')
+    }
     async replaceFile(){
         let that=this
-        let dataEdit=await that.fn()
+        let dataEdit=await that.sureChangeContent()
         if(dataEdit!==false){
             let fd=fs.openSync(that.fileName,'w')
             fs.writeFileSync(fd,dataEdit,(err)=>{
@@ -31,12 +36,20 @@ class replaceConsole{
             })
         }
     }
+    //初始化
     init(dirname){
         let that=this
         fs.readdir(dirname,function(err,file){
             file.forEach(v=>{
                 that.fileName=path.join(dirname,v)
-                that.replaceFile()
+                //如果是文件夹，递归执行
+                that.checkFileType().then(flag=>{
+                    if(flag){
+                        that.replaceFile()
+                    }else{
+                        that.init(`${dirname}/${v}`)
+                    }
+                })
             })
         })
     }
